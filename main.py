@@ -41,6 +41,9 @@ def initialize_rag():
         return
     
     try:
+        # Create storage directory if it doesn't exist
+        os.makedirs(PERSIST_DIR, exist_ok=True)
+        
         # Set LLM
         Settings.llm = OpenAILike(
             api_base=f"{LLAMA_CPP_URL}/v1",
@@ -48,6 +51,15 @@ def initialize_rag():
             model="local-model",
             temperature=0.2,
         )
+        
+        # Use sentence transformers for embeddings
+        from llama_index.embeddings.langchain import LangchainEmbedding
+        from langchain_community.embeddings import HuggingFaceEmbeddings
+        
+        embed_model = LangchainEmbedding(
+            HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
+        )
+        Settings.embed_model = embed_model
         
         # Connect to Qdrant
         qdrant_client = QdrantClient(url=QDRANT_URL)
@@ -57,18 +69,30 @@ def initialize_rag():
             collection_name=COLLECTION_NAME,
         )
         
+        # Only create storage context, don't load yet
         storage_context = StorageContext.from_defaults(
-            vector_store=vector_store,
-            persist_dir=PERSIST_DIR
+            vector_store=vector_store
         )
         
-        # Load existing index if available
-        if os.path.exists(PERSIST_DIR) and os.listdir(PERSIST_DIR):
-            index = load_index_from_storage(storage_context)
-            query_engine = index.as_query_engine()
-        else:
-            index = None
-            query_engine = None
+        # Try to load existing index if docstore exists
+        index = None
+        query_engine = None
+        
+        docstore_path = os.path.join(PERSIST_DIR, "docstore.json")
+        if os.path.exists(docstore_path):
+            try:
+                # Create a proper storage context for loading
+                load_storage_context = StorageContext.from_defaults(
+                    vector_store=vector_store,
+                    persist_dir=PERSIST_DIR
+                )
+                index = load_index_from_storage(load_storage_context)
+                query_engine = index.as_query_engine()
+                print("✓ Loaded existing index from storage")
+            except Exception as load_err:
+                print(f"Warning: Could not load existing index: {load_err}")
+                index = None
+                query_engine = None
             
     except Exception as e:
         raise HTTPException(

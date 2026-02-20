@@ -1,0 +1,5 @@
+LLama.cpp is a C++ implementation of LLaMA (Large Language Model Meta AI).
+It allows running large language models on consumer hardware efficiently.
+llama.cpp provides an OpenAI-compatible API server for easy integration.
+The project is written in C/C++ with Python bindings and Docker support.
+It can run quantized models like Mistral, Llama 2, and other open-source LLMs.

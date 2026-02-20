@@ -1,0 +1,5 @@
+Qdrant is a vector database designed for semantic search and similarity search.
+It stores embeddings and retrieves vectors based on cosine similarity.
+Qdrant supports filtering, payload storage, and batch operations.
+It can handle millions of vectors with sub-millisecond search speed.
+Qdrant is ideal for building RAG (Retrieval Augmented Generation) systems.

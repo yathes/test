@@ -1,0 +1,5 @@
+FastAPI is a modern, fast web framework for building APIs with Python 3.7+.
+It is based on standard Python type hints and uses Pydantic for data validation.
+FastAPI automatically generates interactive API documentation (Swagger UI).
+It is one of the fastest Python web frameworks, comparable to NodeJS and Go.
+FastAPI supports WebSockets, GraphQL, and has built-in security features.
